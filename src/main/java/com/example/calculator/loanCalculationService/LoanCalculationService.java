@@ -1,6 +1,7 @@
 package com.example.calculator.loanCalculationService;
 
 import com.example.calculator.dto.*;
+import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@Service
 public class LoanCalculationService {
     private static final BigDecimal BASE_RATE = new BigDecimal("10.0");
     private static final BigDecimal INSURANCE_DISCOUNT = new BigDecimal("3.0");
