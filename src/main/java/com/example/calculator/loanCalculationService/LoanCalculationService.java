@@ -1,7 +1,6 @@
 package com.example.calculator.loanCalculationService;
 
-import com.example.calculator.dto.LoanOfferDto;
-import com.example.calculator.dto.LoanStatementRequestDto;
+import com.example.calculator.dto.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -57,6 +56,144 @@ public class LoanCalculationService {
         }
         return loanOffers;
     }
+
+    public CreditDto calculateCredit(ScoringDataDto scoringData) {
+        validateScoringRules(scoringData);
+
+        CreditDto creditDto = new CreditDto();
+
+        BigDecimal rate = BASE_RATE; // базовая процентная ставка
+        BigDecimal totalAmount = scoringData.getAmount(); // общая сумма кредита
+
+        if (scoringData.getInsuranceEnabled()) { // если страховка включена
+            totalAmount = totalAmount.add(INSURANCE_COST); // добавляем стоимость страховки к общей сумме кредита
+            rate = rate.subtract(INSURANCE_DISCOUNT); // уменьшаем процентную ставку на скидку за страховку
+        }
+        if (scoringData.getSalaryClient()) { // если клиент - зарплатный
+            rate = rate.subtract(SALARY_CLIENT_DISCOUNT); // уменьшаем процентную ставку на скидку для зарплатных клиентов
+        }
+        rate = applyScoringAdjustments(scoringData, rate); // корректировки к процентной ставке
+
+        BigDecimal monthlyPayment = calculateMonthPayment(totalAmount, rate, scoringData.getTerm()); // вычисляем ежемесячный платеж
+        BigDecimal psk = calculatePsk(totalAmount, rate, scoringData.getTerm()); // вычисляем полную стоимость кредита
+
+        creditDto.setAmount(scoringData.getAmount());
+        creditDto.setTerm(scoringData.getTerm());
+        creditDto.setMonthlyPayment(monthlyPayment);
+        creditDto.setRate(rate);
+        creditDto.setPsk(psk);
+        creditDto.setInsuranceEnabled(scoringData.getInsuranceEnabled());
+        creditDto.setSalaryClient(scoringData.getSalaryClient());
+        creditDto.setPaymentSchedule(generatePaymentSchedule(totalAmount, rate, scoringData.getTerm()));
+
+        return creditDto;
+    }
+
+    private void validateScoringRules(ScoringDataDto scoringData) {
+        if (scoringData.getEmployment().getEmploymentStatus() == EmploymentStatus.UNEMPLOYED) {
+            throw new IllegalArgumentException("С таким статусом кредит не выдадим(");
+        }
+        if (scoringData.getAmount().compareTo(scoringData.getEmployment().getSalary().multiply(new BigDecimal("25"))) > 0) {
+            throw new IllegalArgumentException("Слишком большая сумма. Должна быть <25 месячных зарплат");
+        }
+        int age = Period.between(scoringData.getBirthdate(), LocalDate.now()).getYears();
+        if (age < 20 || age > 65) {
+            throw new IllegalArgumentException("Возраст должен быть от 20 до 65 лет");
+        }
+        if (scoringData.getEmployment().getWorkExperienceTotal() < 18 || scoringData.getEmployment().getWorkExperienceCurrent() < 3) {
+            throw new IllegalArgumentException("Общий стаж должен быть > 18 месяцев. Текущий - > 3 месяцев");
+        }
+    }
+
+    private BigDecimal applyScoringAdjustments(ScoringDataDto scoringData, BigDecimal rate) {
+        switch (scoringData.getEmployment().getEmploymentStatus()) {
+            case SELF_EMPLOYED:
+                rate = rate.add(new BigDecimal("1.0"));
+                break;
+            case BUSINESS_OWNER:
+                rate = rate.add(new BigDecimal("2.0"));
+                break;
+            default:
+                break;
+        }
+
+        switch (scoringData.getEmployment().getPosition()) {
+            case MIDDLE_MANAGER:
+                rate = rate.subtract(new BigDecimal("2.0"));
+                break;
+            case TOP_MANAGER:
+                rate = rate.subtract(new BigDecimal("3.0"));
+                break;
+            default:
+                break;
+        }
+
+        switch (scoringData.getMaritalStatus()) {
+            case MARRIED:
+                rate = rate.subtract(new BigDecimal("3.0"));
+                break;
+            case DIVORCED:
+                rate = rate.add(new BigDecimal("1.0"));
+                break;
+            default:
+                break;
+        }
+
+        int age = Period.between(scoringData.getBirthdate(), LocalDate.now()).getYears();
+        switch (scoringData.getGender()) {
+            case FEMALE:
+                if (age >= 32 && age <= 60) {
+                    rate = rate.subtract(new BigDecimal("3.0"));
+                }
+                break;
+            case MALE:
+                if (age >= 30 && age <= 55) {
+                    rate = rate.subtract(new BigDecimal("3.0"));
+                }
+                break;
+            case NON_BINARY:
+                rate = rate.add(new BigDecimal("7.0"));
+                break;
+            default:
+                break;
+        }
+
+        return rate;
+    }
+
+    private BigDecimal calculatePsk(BigDecimal amount, BigDecimal rate, int term) { //
+        return amount.multiply(rate).divide(new BigDecimal("100"), BigDecimal.ROUND_HALF_UP)
+                .multiply(new BigDecimal(term)).divide(new BigDecimal("12"), BigDecimal.ROUND_HALF_UP);
+        // полная стоимость кредита
+    }
+
+    private List<PaymentScheduleElementDto> generatePaymentSchedule(BigDecimal amount, BigDecimal rate, int term) {
+        List<PaymentScheduleElementDto> schedule = new ArrayList<>(); // платежи
+        BigDecimal monthlyPayment = calculateMonthPayment(amount, rate, term); // ежемесячный платеж
+        BigDecimal remainingDebt = amount; // оставшийся долг
+
+        for (int i = 1; i <= term; i++) { // проход по всему сроку кредита
+            PaymentScheduleElementDto element = new PaymentScheduleElementDto();
+            element.setNumber(i);
+            element.setDate(LocalDate.now().plusMonths(i)); // платеж за данный месяц
+
+            BigDecimal interestPayment = remainingDebt.multiply(rate)
+                    .divide(new BigDecimal("100"), BigDecimal.ROUND_HALF_UP)
+                    .divide(new BigDecimal("12"), BigDecimal.ROUND_HALF_UP);
+            BigDecimal debtPayment = monthlyPayment.subtract(interestPayment);
+            remainingDebt = remainingDebt.subtract(debtPayment); // платеж в месяц
+
+            element.setTotalPayment(monthlyPayment);
+            element.setInterestPayment(interestPayment);
+            element.setDebtPayment(debtPayment);
+            element.setRemainingDebt(remainingDebt);
+
+            schedule.add(element);
+        }
+
+        return schedule;
+    }
+
 
     public BigDecimal calculateMonthPayment(BigDecimal amount, BigDecimal rate, int term) {
         BigDecimal monthlyRate = rate.divide(new BigDecimal("12"), BigDecimal.ROUND_HALF_UP)
