@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -54,6 +55,7 @@ public class LoanCalculationService {
                 loanOffers.add(offer);
             }
         }
+        loanOffers.sort(Comparator.comparing(LoanOfferDto::getStatementId).reversed());
         return loanOffers;
     }
 
