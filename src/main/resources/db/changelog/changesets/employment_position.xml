@@ -1,0 +1,7 @@
+<changeSet id="10" author="author">
+    <createTable tableName="employment_position">
+        <column name="name" type="varchar(50)">
+            <constraints primaryKey="true"/>
+        </column>
+    </createTable>
+</changeSet>

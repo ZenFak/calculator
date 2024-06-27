@@ -1,0 +1,18 @@
+<changeSet id="1" author="author">
+    <createTable tableName="client">
+        <column name="client_id" type="uuid">
+            <constraints primaryKey="true"/>
+        </column>
+        <column name="last_name" type="varchar(255)"/>
+        <column name="first_name" type="varchar(255)"/>
+        <column name="middle_name" type="varchar(255)"/>
+        <column name="birth_date" type="date"/>
+        <column name="email" type="varchar(255)"/>
+        <column name="gender" type="varchar(50)"/>
+        <column name="marital_status" type="varchar(50)"/>
+        <column name="dependent_amount" type="int"/>
+        <column name="passport_id" type="uuid"/>
+        <column name="employment_id" type="uuid"/>
+        <column name="account_number" type="varchar(255)"/>
+    </createTable>
+</changeSet>

@@ -1,0 +1,16 @@
+<changeSet id="3" author="author">
+    <createTable tableName="credit">
+        <column name="credit_id" type="uuid">
+            <constraints primaryKey="true"/>
+        </column>
+        <column name="amount" type="decimal(19,2)"/>
+        <column name="term" type="int"/>
+        <column name="monthly_payment" type="decimal(19,2)"/>
+        <column name="rate" type="decimal(19,2)"/>
+        <column name="psk" type="decimal(19,2)"/>
+        <column name="payment_schedule" type="jsonb"/>
+        <column name="insurance_enabled" type="boolean"/>
+        <column name="salary_client" type="boolean"/>
+        <column name="credit_status" type="varchar(50)"/>
+    </createTable>
+</changeSet>

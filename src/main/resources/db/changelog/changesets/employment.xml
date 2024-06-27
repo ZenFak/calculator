@@ -1,0 +1,13 @@
+<changeSet id="5" author="author">
+    <createTable tableName="employment">
+        <column name="employment_uuid" type="uuid">
+            <constraints primaryKey="true"/>
+        </column>
+        <column name="status" type="varchar(50)"/>
+        <column name="employer_inn" type="varchar(50)"/>
+        <column name="salary" type="decimal(19,2)"/>
+        <column name="position" type="varchar(50)"/>
+        <column name="work_experience_total" type="int"/>
+        <column name="work_experience_current" type="int"/>
+    </createTable>
+</changeSet>
