@@ -1,0 +1,17 @@
+logging:
+  level:
+    root: INFO
+    com.example.statement.service: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+  file:
+    name: application.log
+  console:
+    enabled: true
+
+debug: true
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
