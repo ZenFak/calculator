@@ -1,0 +1,7 @@
+<changeSet id="6" author="author">
+    <createTable tableName="status_history">
+        <column name="status" type="varchar(50)"/>
+        <column name="time" type="timestamp"/>
+        <column name="change_type" type="varchar(50)"/>
+    </createTable>
+</changeSet>

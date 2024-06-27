@@ -1,0 +1,11 @@
+<changeSet id="4" author="author">
+    <createTable tableName="passport">
+        <column name="passport_uuid" type="uuid">
+            <constraints primaryKey="true"/>
+        </column>
+        <column name="series" type="varchar(50)"/>
+        <column name="number" type="varchar(50)"/>
+        <column name="issue_branch" type="varchar(255)"/>
+        <column name="issue_date" type="date"/>
+    </createTable>
+</changeSet>

@@ -1,4 +1,4 @@
-package com.example.calculator.controllers;
+package com.example.deal;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;

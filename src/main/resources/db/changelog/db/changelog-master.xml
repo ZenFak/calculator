@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <include file="/db/changelog/changesets/client.xml"/>
+    <include file="/db/changelog/changesets/statement.xml"/>
+    <include file="/db/changelog/changesets/credit.xml"/>
+    <include file="/db/changelog/changesets/passport.xml"/>
+    <include file="/db/changelog/changesets/employment.xml"/>
+    <include file="/db/changelog/changesets/status_history.xml"/>
+    <include file="/db/changelog/changesets/gender.xml"/>
+    <include file="/db/changelog/changesets/marital_status.xml"/>
+    <include file="/db/changelog/changesets/employment_status.xml"/>
+    <include file="/db/changelog/changesets/employment_position.xml"/>
+    <include file="/db/changelog/changesets/application_status.xml"/>
+    <include file="/db/changelog/changesets/credit_status.xml"/>
+    <include file="/db/changelog/changesets/change_type.xml"/>
+</databaseChangeLog>
